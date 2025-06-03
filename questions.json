@@ -1,0 +1,38 @@
+[
+    {
+        "question": "5 + 7",
+        "answer": "12",
+        "category": "math",
+        "explanation": "Karena 5 ditambah 7 hasilnya 12."
+    },
+    {
+        "question": "Ibukota Indonesia?",
+        "answer": "Jakarta",
+        "category": "general",
+        "explanation": "Ibukota Indonesia saat ini adalah Jakarta."
+    },
+    {
+        "question": "Hewan mamalia laut terbesar?",
+        "answer": "Paus biru",
+        "category": "science",
+        "explanation": "Paus biru adalah hewan mamalia laut terbesar."
+    },
+    {
+        "question": "Sinonim dari 'besar'?",
+        "answer": "luas",
+        "category": "language",
+        "explanation": "Sinonim atau persamaan kata dari besar adalah luas."
+    },
+    {
+        "question": "10 x 3",
+        "answer": "30",
+        "category": "math",
+        "explanation": "10 dikali 3 adalah 30."
+    },
+    {
+        "question": "Apa warna bendera Jepang?",
+        "answer": "Putih dan merah",
+        "category": "general",
+        "explanation": "Bendera Jepang berwarna dasar putih dengan lingkaran merah."
+    }
+]
