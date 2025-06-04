@@ -1,6 +1,5 @@
 import pygame
 import sys
-import json
 import random
 
 pygame.init()
@@ -85,11 +84,21 @@ def show_multiline_box(message):
         box_rect = pygame.Rect(100, 150, 700, 200)
         pygame.draw.rect(screen, (40, 40, 40), box_rect)
         pygame.draw.rect(screen, WHITE, box_rect, 2)
+
+        total_text_height = len(lines) * 30
+        start_y = box_rect.y + (box_rect.height - total_text_height) // 2
+
         for i, l in enumerate(lines):
             text_surface = font.render(l.strip(), True, WHITE)
-            screen.blit(text_surface, (box_rect.x + 10, box_rect.y + 10 + i * 30))
+            text_width = text_surface.get_width()
+            text_x = box_rect.x + (box_rect.width - text_width) // 2
+            text_y = start_y + i * 30
+            screen.blit(text_surface, (text_x, text_y))
+
         info = font.render("Tekan [ENTER] untuk melanjutkan...", True, (180, 180, 180))
-        screen.blit(info, (box_rect.x + 10, box_rect.y + box_rect.height - 30))
+        info_x = box_rect.x + (box_rect.width - info.get_width()) // 2
+        screen.blit(info, (info_x, box_rect.y + box_rect.height - 30))
+
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -97,18 +106,52 @@ def show_multiline_box(message):
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
                 return
 
-def typing_challenge(word, time_limit=30):
+def show_colored_level_message(level):
+    font = pygame.font.SysFont(None, 28)
+    message_start = "Selamat! Kamu naik ke Level "
+    level_text = str(level)
+    message_end = "!"
+
+    while True:
+        screen.fill(BLACK)
+        box_rect = pygame.Rect(100, 150, 700, 200)
+        pygame.draw.rect(screen, (40, 40, 40), box_rect)
+        pygame.draw.rect(screen, WHITE, box_rect, 2)
+
+        start_surface = font.render(message_start, True, WHITE)
+        level_surface = font.render(level_text, True, YELLOW)
+        end_surface = font.render(message_end, True, WHITE)
+
+        total_width = start_surface.get_width() + level_surface.get_width() + end_surface.get_width()
+        start_x = box_rect.x + (box_rect.width - total_width) // 2
+        y = box_rect.y + (box_rect.height - 30) // 2
+
+        screen.blit(start_surface, (start_x, y))
+        screen.blit(level_surface, (start_x + start_surface.get_width(), y))
+        screen.blit(end_surface, (start_x + start_surface.get_width() + level_surface.get_width(), y))
+
+        info = font.render("Tekan [ENTER] untuk melanjutkan...", True, (180, 180, 180))
+        screen.blit(info, (box_rect.x + (box_rect.width - info.get_width()) // 2, box_rect.y + box_rect.height - 30))
+
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                return
+
+def typing_challenge(word, time_limit=35):
     font = pygame.font.SysFont(None, 32)
     input_text = ''
     start_time = pygame.time.get_ticks()
+    current_time_limit = time_limit
 
     while True:
         screen.fill(BLACK)
         elapsed = (pygame.time.get_ticks() - start_time) / 1000
-        if elapsed > time_limit:
-            return False
+        if elapsed > current_time_limit:
+            return False, False
 
-        # Membagi kalimat menjadi 2 baris jika terlalu panjang
         max_width = 700
         words = word.split()
         line1, line2 = "", ""
@@ -122,7 +165,7 @@ def typing_challenge(word, time_limit=30):
         prompt1 = font.render(line1.strip(), True, WHITE)
         prompt2 = font.render(line2.strip(), True, WHITE)
         typed = font.render(input_text, True, GREEN)
-        timer = font.render(f"Sisa Waktu: {time_limit - int(elapsed)} detik", True, YELLOW)
+        timer = font.render(f"Sisa Waktu: {int(current_time_limit - elapsed)} detik", True, YELLOW)
 
         screen.blit(prompt1, (100, 160))
         if line2:
@@ -136,12 +179,16 @@ def typing_challenge(word, time_limit=30):
                 pygame.quit(); sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return input_text.strip().lower() == word.lower()
+                    return input_text.strip().lower() == word.lower(), True
                 elif event.key == pygame.K_BACKSPACE:
                     input_text = input_text[:-1]
                 else:
-                    input_text += event.unicode
-
+                    char = event.unicode
+                    expected_char = word[len(input_text):len(input_text)+1]
+                    if char.lower() == expected_char.lower():
+                        input_text += char
+                    else:
+                        current_time_limit -= 1
 
 def game_over_screen(score, level):
     font_title = pygame.font.SysFont(None, 50, bold=True)
@@ -179,35 +226,34 @@ def game_over_screen(score, level):
                 elif event.key == pygame.K_RETURN:
                     return selected == 0
 
-
 def main():
     paddle = Paddle()
     ball = Ball()
     ball.reset_position(paddle)
     score, lives, level = 0, 3, 1
     typing_words = [
-        "singa berjalan pelan di padang rumput saat matahari terbenam",
-        "aku belajar mengetik dengan sepuluh jari agar lebih cepat dan tepat",
-        "pohon-pohon bergoyang tertiup angin di sore hari yang tenang",
-        "mengetik cepat membutuhkan latihan rutin dan fokus penuh",
-        "ia menyalakan komputer, membuka dokumen, lalu mulai menulis"
+        "meski langkahku pelan, aku tetap maju dan tidak berhenti",
+        "setiap hari adalah kesempatan baru untuk memperbaiki diri",
+        "aku kuat, aku mampu, dan aku pantas mendapatkan kebahagiaan",
+        "meskipun hari ini berat, aku percaya semuanya akan membaik",
+        "selama aku masih bernapas, harapan itu selalu ada"
     ]
 
     def generate_blocks(level):
         blocks = []
         colors = [GREEN, RED, BLUE, YELLOW]
-        for row in range(5):
+        for row in range(5 + level):
             for col in range(12):
                 x = 60 + col * 65
-                y = 50 + row * 30 + (level - 1) * 20
+                y = 50 + row * 30
                 blocks.append(Block(x, y, random.choice(colors)))
         return blocks
 
     blocks = generate_blocks(level)
     game_started = False
     paused = False
-
     running = True
+
     while running:
         clock.tick(FPS)
         screen.fill(BLACK)
@@ -234,16 +280,16 @@ def main():
             font = pygame.font.SysFont(None, 30)
             pause_text = font.render("PAUSED", True, WHITE)
             instruction_text = font.render("Tekan [ESC] untuk lanjut", True, WHITE)
-    
             center_x = (WIDTH - pause_text.get_width()) // 2
             center_y = HEIGHT // 2
             screen.blit(pause_text, (center_x, center_y - 25))
             screen.blit(instruction_text, ((WIDTH - instruction_text.get_width()) // 2, center_y + 15))
-
         else:
             ball.move()
             if ball.rect.colliderect(paddle.rect):
-                ball.speed_y *= -1
+                if ball.speed_y > 0:
+                    ball.rect.bottom = paddle.rect.top
+                    ball.speed_y *= -1
 
             hit_block = None
             for block in blocks:
@@ -267,13 +313,20 @@ def main():
 
             if not blocks:
                 level += 1
-                show_multiline_box(f"Selamat! Kamu naik ke Level {level}!")
+                show_colored_level_message(level)
                 word = random.choice(typing_words)
-                if typing_challenge(word):
+                correct, submitted = typing_challenge(word)
+                if correct:
                     show_multiline_box("Keren! Kamu lulus tantangan mengetik cepat!")
                     score += 100
+                elif submitted:
+                    show_multiline_box("Ups! Jawabanmu salah. Tetap semangat!")
+                    score -= 50
                 else:
-                    show_multiline_box("Waktu habis! Tapi kamu tetap lanjut.")
+                    show_multiline_box("Waktu habis! Coba lagi di level berikutnya ya!")
+                    lives -= 1
+                    if lives <= 0:
+                        running = False
                 blocks = generate_blocks(level)
                 ball.reset_position(paddle)
                 game_started = False
