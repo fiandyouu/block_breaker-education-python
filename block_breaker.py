@@ -255,23 +255,17 @@ def main():
     ball.reset_position(paddle)
     score, lives, level = 0, 3, 1
     typing_words = [
-    "Lumba-lumba adalah salah satu hewan paling cerdas di laut dan mampu berkomunikasi dengan berbagai suara unik",
-    "Pohon baobab dapat menyimpan hingga 120.000 liter air di batangnya untuk bertahan saat musim kemarau panjang",
-    "Bulan adalah satu-satunya satelit alami bumi yang memengaruhi pasang surut air laut di seluruh dunia",
-    "Tubuh manusia memiliki sekitar 37 triliun sel yang bekerja sama menjaga fungsi organ dan kesehatan secara keseluruhan",
-    "Lebah madu bisa mengenali wajah manusia dan memiliki sistem komunikasi yang sangat kompleks melalui tarian",
-    "Paus biru adalah makhluk terbesar di bumi yang pernah hidup, dengan panjang mencapai 30 meter dan berat hingga 200 ton",
-    "Kupu-kupu merasakan rasa dengan kakinya, yang memungkinkan mereka menentukan apakah daun cocok untuk bertelur",
-    "Gunung Everest terus tumbuh sekitar 4 milimeter setiap tahun akibat pergerakan lempeng tektonik di bawahnya",
-    "Sistem saraf manusia dapat mengirimkan sinyal ke seluruh tubuh dengan kecepatan hingga 120 meter per detik",
-    "Bulan memiliki lapisan debu halus yang disebut regolith, yang terbentuk dari benturan meteorit selama jutaan tahun"
-]
+                "Air bersih penting untuk menjaga kesehatan tubuh setiap hari",
+                "Kupu-kupu terbang dari satu bunga ke bunga lain mencari nektar",
+                "Hutan adalah rumah bagi banyak hewan liar yang unik dan indah",
+                "Energi matahari bisa digunakan untuk menghasilkan listrik ramah lingkungan"
+            ]
 
     def generate_blocks(level):
         blocks = []
         colors = [GREEN, RED, BLUE, YELLOW]
         for row in range(0 + level):
-            for col in range(0):
+            for col in range(12):
                 x = 60 + col * 65
                 y = 50 + row * 30
                 blocks.append(Block(x, y, random.choice(colors)))
