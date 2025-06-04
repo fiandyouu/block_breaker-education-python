@@ -146,37 +146,58 @@ def typing_challenge(word, time_limit=35):
     start_time = pygame.time.get_ticks()
     current_time_limit = time_limit
 
+    max_width = 700
+    start_x = 100
+    start_y = 160
+    line_spacing = 30
+
+    def wrap_text(text, font, max_width):
+        words = text.split()
+        lines = []
+        current_line = ""
+        for w in words:
+            test_line = current_line + (w + " ")
+            if font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line.strip())
+                current_line = w + " "
+        if current_line:
+            lines.append(current_line.strip())
+        return lines
+
+    prompt_lines = wrap_text(word, font, max_width)
+
     while True:
         screen.fill(BLACK)
         elapsed = (pygame.time.get_ticks() - start_time) / 1000
         if elapsed > current_time_limit:
             return False, False
 
-        max_width = 700
-        words = word.split()
-        line1, line2 = "", ""
-        for w in words:
-            test_line = line1 + w + " "
-            if font.size(test_line)[0] < max_width:
-                line1 = test_line
-            else:
-                line2 += w + " "
+        # Render dan tampilkan prompt (soal) per baris
+        for i, line in enumerate(prompt_lines):
+            rendered_line = font.render(line, True, WHITE)
+            screen.blit(rendered_line, (start_x, start_y + i * line_spacing))
 
-        prompt1 = font.render(line1.strip(), True, WHITE)
-        prompt2 = font.render(line2.strip(), True, WHITE)
-        typed = font.render(input_text, True, GREEN)
+        # Bungkus jawaban yang diketik agar tidak terpotong lebar
+        input_lines = wrap_text(input_text, font, max_width)
+        # Tampilkan semua baris jawaban di bawah prompt
+        answer_start_y = start_y + len(prompt_lines) * line_spacing + 10
+        for i, line in enumerate(input_lines):
+            rendered_line = font.render(line, True, GREEN)
+            screen.blit(rendered_line, (start_x, answer_start_y + i * line_spacing))
+
+        # Tampilkan timer di bawah jawaban yang diketik
+        timer_y = answer_start_y + len(input_lines) * line_spacing + 10
         timer = font.render(f"Sisa Waktu: {int(current_time_limit - elapsed)} detik", True, YELLOW)
+        screen.blit(timer, (start_x, timer_y))
 
-        screen.blit(prompt1, (100, 160))
-        if line2:
-            screen.blit(prompt2, (100, 190))
-        screen.blit(typed, (100, 230))
-        screen.blit(timer, (100, 270))
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
                     return input_text.strip().lower() == word.lower(), True
@@ -188,7 +209,9 @@ def typing_challenge(word, time_limit=35):
                     if char.lower() == expected_char.lower():
                         input_text += char
                     else:
-                        current_time_limit -= 1
+                        current_time_limit -= 0
+
+
 
 def game_over_screen(score, level):
     font_title = pygame.font.SysFont(None, 50, bold=True)
@@ -232,18 +255,23 @@ def main():
     ball.reset_position(paddle)
     score, lives, level = 0, 3, 1
     typing_words = [
-        "meski langkahku pelan, aku tetap maju dan tidak berhenti",
-        "setiap hari adalah kesempatan baru untuk memperbaiki diri",
-        "aku kuat, aku mampu, dan aku pantas mendapatkan kebahagiaan",
-        "meskipun hari ini berat, aku percaya semuanya akan membaik",
-        "selama aku masih bernapas, harapan itu selalu ada"
-    ]
+    "Lumba-lumba adalah salah satu hewan paling cerdas di laut dan mampu berkomunikasi dengan berbagai suara unik",
+    "Pohon baobab dapat menyimpan hingga 120.000 liter air di batangnya untuk bertahan saat musim kemarau panjang",
+    "Bulan adalah satu-satunya satelit alami bumi yang memengaruhi pasang surut air laut di seluruh dunia",
+    "Tubuh manusia memiliki sekitar 37 triliun sel yang bekerja sama menjaga fungsi organ dan kesehatan secara keseluruhan",
+    "Lebah madu bisa mengenali wajah manusia dan memiliki sistem komunikasi yang sangat kompleks melalui tarian",
+    "Paus biru adalah makhluk terbesar di bumi yang pernah hidup, dengan panjang mencapai 30 meter dan berat hingga 200 ton",
+    "Kupu-kupu merasakan rasa dengan kakinya, yang memungkinkan mereka menentukan apakah daun cocok untuk bertelur",
+    "Gunung Everest terus tumbuh sekitar 4 milimeter setiap tahun akibat pergerakan lempeng tektonik di bawahnya",
+    "Sistem saraf manusia dapat mengirimkan sinyal ke seluruh tubuh dengan kecepatan hingga 120 meter per detik",
+    "Bulan memiliki lapisan debu halus yang disebut regolith, yang terbentuk dari benturan meteorit selama jutaan tahun"
+]
 
     def generate_blocks(level):
         blocks = []
         colors = [GREEN, RED, BLUE, YELLOW]
-        for row in range(5 + level):
-            for col in range(12):
+        for row in range(0 + level):
+            for col in range(0):
                 x = 60 + col * 65
                 y = 50 + row * 30
                 blocks.append(Block(x, y, random.choice(colors)))
